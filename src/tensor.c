@@ -25,6 +25,7 @@ Vector* Ones(uint32_t size, double value){
 	return arr;
 }
 
+
 ///////////////////////
 //顯示 Array 內容
 ///////////////////////

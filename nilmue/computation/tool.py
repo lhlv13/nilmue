@@ -9,7 +9,7 @@ Created on Fri Nov  4 17:48:09 2022
 from ctypes import *
 from config import Vector, callDll
 import matplotlib.pyplot as plt
-from standardwave import *
+from standardwave import sinWave
 import matplotlib.pyplot as plt
 
 
@@ -42,8 +42,9 @@ def minMaxScaling(wave):
 
 
 def main():
+    a = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
     x = [0, 1, 2, 3, 4, 5]
-    min_max = minMaxScaling(x)
+    min_max = minMaxScaling(a)
     print(min_max)
     pass
 

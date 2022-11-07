@@ -3,6 +3,13 @@ from ctypes import *
 import ctypes
 import numpy as np
 
+class Matrix(Structure):
+    _fields_  = [
+        ("array", POINTER(POINTER(c_double))),
+        ("w", c_uint32),
+        ("h", c_uint32)
+    ]
+
 class Vector(Structure):
     _fields_  = [
         ("array", POINTER(c_double)),

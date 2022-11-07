@@ -3,4 +3,5 @@
 
 double Max(Vector* wave);
 double Min(Vector* wave);
+Vector* MinMaxScaling(Vector* wave);
 #endif

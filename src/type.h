@@ -15,7 +15,8 @@ typedef struct {
 
 typedef struct {
 	double** array;
-	uint32_t shape[2];
+	uint32_t w;
+	uint32_t h;
 }Matrix;
 
 #endif

@@ -2,6 +2,7 @@
 #include<math.h>
 #include "type.h"
 #include "tensor.h"
+#include "tool.h"
 
 //  Zero-Crossing
 Index* ZeroCrossing(Vector* wave, uint32_t sampling_points_of_T){
@@ -40,7 +41,7 @@ Index* ZeroCrossing(Vector* wave, uint32_t sampling_points_of_T){
 
 
 //RMS
-Vector* RMS(Vector* wave, Index* zeros) {
+Vector* RMS(Vector* wave, Index* zeros){
 	Vector* rms = (Vector*)calloc(1, sizeof(Vector));
 	rms->shape = 0;
 	double temp = 0;
@@ -69,6 +70,7 @@ Vector* RMS(Vector* wave, Index* zeros) {
 }
 
 
+// 峰值包絡線
 Vector** PeakEnvelope(Vector* wave, Index* zeros){
 	Vector* up = (Vector*) calloc(1, sizeof(Vector));
 	up->shape = 0;
@@ -106,3 +108,44 @@ Vector** PeakEnvelope(Vector* wave, Index* zeros){
 }
 
 
+// V-I 軌跡
+Matrix* VItrajectory(Vector* V, Vector* I, uint32_t grid){
+	if((V->shape) != (I->shape)){
+		exit(1);
+	}
+	
+	double grid_v;
+	uint32_t row, col;
+	////記憶體配置
+	uint32_t i;
+	double** vi = (double**) calloc(grid, sizeof(double*));
+	for(i=0;i<grid;i++){
+		vi[i] = (double*) calloc(grid, sizeof(double));
+	}
+	
+	//歸一化
+	Vector* mmv = MinMaxScaling(V);
+	Vector* mmi = MinMaxScaling(I);
+	
+	////賦值
+	grid_v = 1.0 / (double)(grid - 1);
+	for(i=0;i<(V->shape);i++){
+		row = mmi->array[i] / grid_v; // double > uint32 !!?
+		col = mmv->array[i] / grid_v; // double > uint32 !!?
+
+		vi[row][col] = 255;
+	}
+	
+	
+	FreeVector(mmv); //記憶體釋放
+	FreeVector(mmi); //記憶體釋放
+	
+	
+	
+	// Return
+	Matrix* output = (Matrix*) calloc(1, sizeof(Matrix));
+	output->array = vi;
+	output->w = grid;
+	output->h = grid;
+	return output;
+}

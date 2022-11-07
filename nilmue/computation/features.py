@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from ctypes import *
-from config import Vector, Index, callDll
-from standardwave import sinWave
+from config import Matrix, Vector, Index, callDll
+from standardwave import sinWave, cosWave
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 def zeroCrossing(wave, sampling_points_of_T):
     """
@@ -94,6 +95,39 @@ def peakEnvelope(wave, zeros):
     return up, down
 
 
+def viTrajectory(V, I, grid=64):
+    """
+    Parameters
+    ----------
+    wave : list
+        欲做 電流峰值包絡線 的波型
+    zeros: list
+        判斷過零點的波型，一般為電壓波型
+   
+
+    Returns
+    -------
+    up : list
+        上 峰值包絡線
+    down: list
+        下 峰直包絡線
+
+    """
+    lib = callDll().VItrajectory
+    lib.argtypes = [POINTER(Vector), POINTER(Vector), c_uint32]  ## ubuntu 一定要這行唷
+    lib.restype = POINTER(Matrix)
+    args = [
+              Vector( (c_double * len(V))(*V), len(V) ),
+              Vector( (c_double * len(I))(*I), len(I) ),
+              c_uint32(grid)
+           ]
+
+    output = lib(args[0], args[1], args[2])
+    output = [output[0].array[i][:grid] for i in range(grid)]
+ 
+    return output
+
+
 
 def main():
     ## 標準 sin 波
@@ -120,15 +154,22 @@ def main():
     # print("\n\n")
 
     ######################################################## 測試 peakEnvelope
-    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=0.033)
-    zeros = zeroCrossing(sin, sampling_points_of_T=32)
-    up, down = peakEnvelope(sin, zeros)
-    print("peakEnvelope","-"*40)
-    print(f"size: {len(up)}, {len(down)}")  ## 長度 : 上包絡線，下包絡線
-    print("Array : ")
-    print(f"Up : {up}")
-    print(f"Down : {down}")
-    
+    # sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=0.033)
+    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    # up, down = peakEnvelope(sin, zeros)
+    # print("peakEnvelope","-"*40)
+    # print(f"size: {len(up)}, {len(down)}")  ## 長度 : 上包絡線，下包絡線
+    # print("Array : ")
+    # print(f"Up : {up}")
+    # print(f"Down : {down}")
+
+    ######################################################## 測試 viTrajectory
+    v = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    i = cosWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    vi = viTrajectory(v, i)
+    plt.imshow(vi)
+    plt.savefig(r"img/vi.jpg")
+
 
 
     
