@@ -18,7 +18,8 @@ Vector* Zeros(uint32_t size){
 
 Vector* Ones(uint32_t size, double value){
 	Vector* arr = Array1d(size);
-	for(uint32_t i=0;i<size;i++){
+	uint32_t i;
+	for(i=0;i<size;i++){
 		arr->array[i] = value;
 	}
 	return arr;
@@ -30,7 +31,8 @@ Vector* Ones(uint32_t size, double value){
 void ShowArray1d(Vector array) {
 	// printf 1D-array
 	printf("[");
-	for (uint32_t i = 0; i < array.shape; i++) {
+	uint32_t i;
+	for (i = 0; i < array.shape; i++) {
 		printf("%f ", array.array[i]);
 		if (i != (array.shape - 1)) {
 			printf(",");

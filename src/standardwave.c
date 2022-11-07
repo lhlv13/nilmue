@@ -26,7 +26,8 @@ Vector* Sin(double A, double frequency, double sampling_points_of_T, double seco
 	Ts = 1.0 / (frequency * sampling_points_of_T);
 	n = seconds / Ts;  // 總採樣數
 	sin_wave = (double*)calloc((uint32_t)floor(n), sizeof(double));
-	for (uint32_t i = 0; i < n; i++) {
+	uint32_t i;
+	for (i = 0; i < n; i++) {
 		sin_wave[i] = A * sin(2 * PI * frequency * (double)i * Ts + phi * PI / 180.0);
 	}
 	output->array = sin_wave;
@@ -55,7 +56,8 @@ Vector* Cos(double A, double frequency, double sampling_points_of_T, double seco
 	Ts = 1.0 / (frequency * sampling_points_of_T);
 	n = seconds / Ts;  // 總採樣數
 	sin_wave = (double*)calloc((uint32_t)floor(n), sizeof(double));
-	for (uint32_t i = 0; i < n; i++) {
+	uint32_t i;
+	for (i = 0; i < n; i++) {
 		sin_wave[i] = A * cos(2 * PI * frequency * (double)i * Ts + phi * PI / 180.0);
 	}
 	output->array = sin_wave;

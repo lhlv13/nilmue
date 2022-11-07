@@ -18,7 +18,8 @@ Index* ZeroCrossing(Vector* wave, uint32_t sampling_points_of_T){
 		zeros->array[zeros->shape - 1] = 0;
 	}
 	// zeroCrossing
-	for (uint32_t i = 1; i < wave->shape; i++) {
+	uint32_t i;
+	for (i = 1; i < wave->shape; i++) {
 		if (wave->array[i - 1] < 0 && wave->array[i] > 0) {
 			// 
 			zeros->array = (uint32_t*)realloc(zeros->array, sizeof(uint32_t) * (++(zeros->shape)));
@@ -39,20 +40,21 @@ Index* ZeroCrossing(Vector* wave, uint32_t sampling_points_of_T){
 
 
 //RMS
-Vector* RMS(Vector* wave, Vector* base_wave, uint32_t sampling_points_of_T) {
-	Index* zeros = ZeroCrossing(base_wave, sampling_points_of_T);
+Vector* RMS(Vector* wave, Index* zeros) {
 	Vector* rms = (Vector*)calloc(1, sizeof(Vector));
 	rms->shape = 0;
 	double temp = 0;
 	uint32_t start, end;
-	for (uint32_t i = 0; i < zeros->shape-1; i++) {
+	uint32_t i;
+	for (i = 0; i < zeros->shape-1; i++) {
 
 		temp = 0.0;
 		start = zeros->array[i];
 		end = (uint32_t)zeros->array[i+1];
 
 		// Calculate RMS
-		for (uint32_t j = start; j < end; j++) {
+		uint32_t j;
+		for (j = start; j < end; j++) {
 			temp += (wave->array[j] * wave->array[j]);
 		}
 		temp = sqrt(temp / (double)(end - start));
@@ -63,12 +65,35 @@ Vector* RMS(Vector* wave, Vector* base_wave, uint32_t sampling_points_of_T) {
 
 	}
 
-	FreeIndex(zeros); //釋放記憶體
-
 	return rms;
 }
 
 
-void minMaxScaling(Vector* wave){
+Vector* PeakEnvelope(Vector* wave, Index* zeros, char is_up){
+	Vector* enve = (Vector*) calloc(1, sizeof(Vector));
+	enve->shape = 0;
 	
+	double maxv, minv;
+	maxv = wave->array[0];
+	minv = wave->array[0];
+	uint32_t start, end;
+	uint32_t i, j;
+	for(i=0;i<(zeros->shape)-1;i++){
+		start = zeros->array[i];
+		end = zeros->array[i+1];
+		// 找 最大、最小值
+		for(j=start;j<end;j++){
+			minv = (minv > (wave->array)[j])? (wave->array)[j] : minv;
+			maxv = (maxv < (wave->array)[j]) ? (wave->array)[j] : maxv;
+		}
+
+		// 賦值
+		enve->array = (double*) realloc(enve->array, sizeof(double)*(++(enve->shape)));
+		enve->array[(enve->shape)-1] = (is_up!=0)?maxv:minv;
+	}
+	
+	
+	return enve;
 }
+
+

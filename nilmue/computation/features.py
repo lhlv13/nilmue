@@ -31,16 +31,15 @@ def zeroCrossing(wave, sampling_points_of_T):
     zeros = output[0].array[:output[0].shape]
     return zeros
 
-def rms(wave, base_wave, sampling_points_of_T):
+def rms(wave, zeros):
     """
     Parameters
     ----------
     wave : list
         欲做rms的波型
-    base_wave: list
+    zeros: list
         判斷過零點的波型，一般為電壓波型
-    sampling_points_of_T : uint32_t
-        每周期波形的採樣點數
+   
 
     Returns
     -------
@@ -49,40 +48,97 @@ def rms(wave, base_wave, sampling_points_of_T):
 
     """
     lib = callDll().RMS
-    lib.argtypes = [POINTER(Vector), POINTER(Vector), c_uint32]  ## ubuntu 一定要這行唷
+    lib.argtypes = [POINTER(Vector), POINTER(Index)]  ## ubuntu 一定要這行唷
     lib.restype = POINTER(Vector)
     args = [
               Vector( (c_double * len(wave))(*wave), len(wave) ),
-              Vector( (c_double * len(wave))(*wave), len(wave) ),
-              c_uint32(sampling_points_of_T)
+              Index( (c_uint32 * len(zeros))(*zeros), len(zeros) )
            ]
-    output = lib(args[0], args[1], args[2])
+    output = lib(args[0], args[1])
     output = output[0].array[:output[0].shape]
     return output
 
 
+def peakEnvelope(wave, zeros):
+    """
+    Parameters
+    ----------
+    wave : list
+        欲做 電流峰值包絡線 的波型
+    zeros: list
+        判斷過零點的波型，一般為電壓波型
+   
 
+    Returns
+    -------
+    rms : list
+        波型每周期的 rms
+
+    """
+    lib = callDll().PeakEnvelope
+    lib.argtypes = [POINTER(Vector), POINTER(Index), c_char]  ## ubuntu 一定要這行唷
+    lib.restype = POINTER(Vector)
+    args = [
+              Vector( (c_double * len(wave))(*wave), len(wave) ),
+              Index( (c_uint32 * len(zeros))(*zeros), len(zeros) ),
+              c_char(0)  ## 0, 1 : 布林值  1: 上包絡線, 0下包絡線
+           ]
+    up = lib(args[0], args[1], c_char(2))
+    up = up[0].array[:up[0].shape]
+    down = lib(args[0], args[1], c_char(0))
+    down = down[0].array[:down[0].shape]
+    return up, down
 
 
 
 
 def main():
-    
+    ## 標準 sin 波
     sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
-    zero = zeroCrossing(sin, sampling_points_of_T=32)
-    x = [i for i in range(len(sin))]
-    y = np.zeros(len(x))
-    for i in zero:
-        y[int(i)] = 10
-        
+    ######################################################## 測試 zeroCrossing
+    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    # print("zeroCrossing","-"*40)
+    # print(f"size: {len(zeros)}")  ## 輸出61才會有60個區間(60 Hz)
+    # print(f"Array : \n{zeros}\n\n")
+    # print("Not 32 : ")
+    # for i in range(len(zeros)-1):
+    #     v = zeros[i+1] - zeros[i]
+    #     if v!=32:
+    #         print(f"{i} -> {i+1}  : {v}")
+    ######################################################## 測試 rms
+    # sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    # rms_v = rms(sin, zeros)
+    # print("rms","-"*40)
+    # print(f"size: {len(rms_v)}")  ## 
+    # print("Array : ")
+    # for i in range(len(rms_v)):
+    #     print(f"{rms_v[i]:>.2f}",end=",")
+    # print("\n\n")
+
+    ######################################################## 測試 peakEnvelope
+    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    up, down = peakEnvelope(sin, zeros)
+    print("peakEnvelope","-"*40)
+    print(f"size: {len(up)}, {len(down)}")  ## 長度 : 上包絡線，下包絡線
+    print("Array : ")
+    print(f"Up : {up}")
+    print(f"Down : {down}")
+    
+
+
+    
+
+    ## 畫圖
     # plt.plot(sin, c='b')
     # plt.plot(y, c='r')
     # plt.savefig(r"img/zero.jpg")
-    print(zero)
+    # print(zero)
     # print(len(zero))
-    rms_list = rms(sin, sin, 32)
-    print(rms_list)
-    pass
+    # rms_list = rms(sin, sin, 32)
+    # print(rms_list)
+    # pass
 
 
 if __name__ == "__main__":
