@@ -71,24 +71,27 @@ def peakEnvelope(wave, zeros):
 
     Returns
     -------
-    rms : list
-        波型每周期的 rms
+    up : list
+        上 峰值包絡線
+    down: list
+        下 峰直包絡線
 
     """
     lib = callDll().PeakEnvelope
-    lib.argtypes = [POINTER(Vector), POINTER(Index), c_char]  ## ubuntu 一定要這行唷
-    lib.restype = POINTER(Vector)
+    lib.argtypes = [POINTER(Vector), POINTER(Index)]  ## ubuntu 一定要這行唷
+    lib.restype = POINTER(POINTER(Vector))
     args = [
               Vector( (c_double * len(wave))(*wave), len(wave) ),
-              Index( (c_uint32 * len(zeros))(*zeros), len(zeros) ),
-              c_char(0)  ## 0, 1 : 布林值  1: 上包絡線, 0下包絡線
+              Index( (c_uint32 * len(zeros))(*zeros), len(zeros) )
            ]
-    up = lib(args[0], args[1], c_char(2))
-    up = up[0].array[:up[0].shape]
-    down = lib(args[0], args[1], c_char(0))
-    down = down[0].array[:down[0].shape]
-    return up, down
 
+    arr_2 = lib(args[0], args[1])
+    output = arr_2[0]
+    up = output[0].array[:output[0].shape]
+    output = arr_2[1]
+    down = output[0].array[:output[0].shape]
+
+    return up, down
 
 
 
@@ -117,7 +120,7 @@ def main():
     # print("\n\n")
 
     ######################################################## 測試 peakEnvelope
-    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=0.033)
     zeros = zeroCrossing(sin, sampling_points_of_T=32)
     up, down = peakEnvelope(sin, zeros)
     print("peakEnvelope","-"*40)

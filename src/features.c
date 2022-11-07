@@ -69,9 +69,11 @@ Vector* RMS(Vector* wave, Index* zeros) {
 }
 
 
-Vector* PeakEnvelope(Vector* wave, Index* zeros, char is_up){
-	Vector* enve = (Vector*) calloc(1, sizeof(Vector));
-	enve->shape = 0;
+Vector** PeakEnvelope(Vector* wave, Index* zeros){
+	Vector* up = (Vector*) calloc(1, sizeof(Vector));
+	up->shape = 0;
+	Vector* down = (Vector*) calloc(1, sizeof(Vector));
+	down->shape = 0;
 	
 	double maxv, minv;
 	maxv = wave->array[0];
@@ -88,12 +90,19 @@ Vector* PeakEnvelope(Vector* wave, Index* zeros, char is_up){
 		}
 
 		// 賦值
-		enve->array = (double*) realloc(enve->array, sizeof(double)*(++(enve->shape)));
-		enve->array[(enve->shape)-1] = (is_up!=0)?maxv:minv;
+		up->array = (double*) realloc(up->array, sizeof(double)*(++(up->shape)));
+		down->array = (double*) realloc(down->array, sizeof(double)*(++(down->shape)));
+		up->array[(up->shape)-1] = maxv;
+		down->array[(down->shape)-1] = minv;
 	}
 	
 	
-	return enve;
+	// Return
+	Vector** output = (Vector**) calloc(2, sizeof(Vector*));
+	output[0] = up;
+	output[1] = down;
+	
+	return output;
 }
 
 
