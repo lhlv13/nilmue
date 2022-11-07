@@ -1,1 +1,1 @@
-DLLPATH=../../lib/libnilmue.so
+DLLPATH=../../windows/nilmue.dll

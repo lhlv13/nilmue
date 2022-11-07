@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os 
+import sys
+BASE_PATH = os.path.dirname(__file__)  ## 根目錄
+sys.path.append(BASE_PATH)
 from ctypes import *
 import ctypes
 import numpy as np
@@ -25,13 +29,16 @@ class Index(Structure):
 def callDll():
     """ 呼叫 DLLPATH 儲存的 dll """
     dll_path = config()["DLLPATH"]
+    global BASE_PATH
+    dll_path = os.path.join(BASE_PATH, dll_path)  ## 絕對路徑 模組需要
     return ctypes.CDLL(dll_path)
     
 
 def config():
-    config = "./config"
+    global BASE_PATH
+    path = os.path.join(BASE_PATH, "config")  ## 絕對路徑 模組需要
     path_dict = {}
-    with open(config, 'r') as f:
+    with open(path, 'r') as f:
         lines = f.readlines()
         for line in lines:
             l = line.strip().split("=")

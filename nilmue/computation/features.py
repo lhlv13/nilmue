@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import os 
+import sys
+sys.path.append(os.path.dirname(__file__))
 from ctypes import *
 from config import Matrix, Vector, Index, callDll
 from standardwave import sinWave, cosWave
@@ -133,42 +136,42 @@ def main():
     ## 標準 sin 波
     sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
     ######################################################## 測試 zeroCrossing
-    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
-    # print("zeroCrossing","-"*40)
-    # print(f"size: {len(zeros)}")  ## 輸出61才會有60個區間(60 Hz)
-    # print(f"Array : \n{zeros}\n\n")
-    # print("Not 32 : ")
-    # for i in range(len(zeros)-1):
-    #     v = zeros[i+1] - zeros[i]
-    #     if v!=32:
-    #         print(f"{i} -> {i+1}  : {v}")
+    zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    print("zeroCrossing","-"*40)
+    print(f"size: {len(zeros)}")  ## 輸出61才會有60個區間(60 Hz)
+    print(f"Array : \n{zeros}\n\n")
+    print("Not 32 : ")
+    for i in range(len(zeros)-1):
+        v = zeros[i+1] - zeros[i]
+        if v!=32:
+            print(f"{i} -> {i+1}  : {v}")
     ######################################################## 測試 rms
-    # sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
-    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
-    # rms_v = rms(sin, zeros)
-    # print("rms","-"*40)
-    # print(f"size: {len(rms_v)}")  ## 
-    # print("Array : ")
-    # for i in range(len(rms_v)):
-    #     print(f"{rms_v[i]:>.2f}",end=",")
-    # print("\n\n")
+    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    rms_v = rms(sin, zeros)
+    print("rms","-"*40)
+    print(f"size: {len(rms_v)}")  ## 
+    print("Array : ")
+    for i in range(len(rms_v)):
+        print(f"{rms_v[i]:>.2f}",end=",")
+    print("\n\n")
 
     ######################################################## 測試 peakEnvelope
-    # sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=0.033)
-    # zeros = zeroCrossing(sin, sampling_points_of_T=32)
-    # up, down = peakEnvelope(sin, zeros)
-    # print("peakEnvelope","-"*40)
-    # print(f"size: {len(up)}, {len(down)}")  ## 長度 : 上包絡線，下包絡線
-    # print("Array : ")
-    # print(f"Up : {up}")
-    # print(f"Down : {down}")
+    sin = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=0.5)
+    zeros = zeroCrossing(sin, sampling_points_of_T=32)
+    up, down = peakEnvelope(sin, zeros)
+    print("peakEnvelope","-"*40)
+    print(f"size: {len(up)}, {len(down)}")  ## 長度 : 上包絡線，下包絡線
+    print("Array : ")
+    print(f"Up : {up}")
+    print(f"Down : {down}")
 
     ######################################################## 測試 viTrajectory
-    v = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
-    i = cosWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
-    vi = viTrajectory(v, i)
-    plt.imshow(vi)
-    plt.savefig(r"img/vi.jpg")
+    # v = sinWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    # i = cosWave(A=10, frequency=60, sampling_points_of_T=32, seconds=1)
+    # vi = viTrajectory(v, i)
+    # plt.imshow(vi)
+    # plt.savefig(r"img/vi.jpg")
 
 
 
