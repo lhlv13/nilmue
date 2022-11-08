@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(__file__))
 from ctypes import *
-from config import Matrix, Vector, Index, callDll
+from config import Matrix, Vector, Index, callDll, osLiveDecorator
 from standardwave import sinWave, cosWave
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +33,8 @@ def zeroCrossing(wave, sampling_points_of_T):
            ]
     output = lib(args[0], args[1])
     zeros = output[0].array[:output[0].shape]
-    return zeros
+    
+    return zeros if len(zeros)>0 else None
 
 def rms(wave, zeros):
     """
@@ -81,6 +82,8 @@ def peakEnvelope(wave, zeros):
         下 峰直包絡線
 
     """
+    assert len(wave) > 0, "wave must > 0 : peakEnvelope"
+    assert len(zeros) > 0, "zeros must > 0 : peakEnvelope"
     lib = callDll().PeakEnvelope
     lib.argtypes = [POINTER(Vector), POINTER(Index)]  ## ubuntu 一定要這行唷
     lib.restype = POINTER(POINTER(Vector))
